@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Session, create_engine, select
-from .models import Activity, Participant
+from .models import Activity
 from pathlib import Path
 
 # SQLite DB in workspace

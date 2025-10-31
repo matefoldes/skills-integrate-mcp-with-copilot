@@ -33,8 +33,11 @@ app = FastAPI(
 
 # Mount the static files directory
 current_dir = Path(__file__).parent
-app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
-          "static")), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(Path(__file__).parent, "static")),
+    name="static",
+)
 
 
 @app.get("/")
@@ -70,7 +73,7 @@ def signup_for_activity(activity_name: str, email: str):
         if not activity:
             raise HTTPException(status_code=404, detail="Activity not found")
 
-    # participants relationship will be available from the loaded model
+        # participants relationship will be available from the loaded model
         current_count = len(activity.participants) if activity.participants else 0
 
         # Check if already signed up
@@ -78,7 +81,10 @@ def signup_for_activity(activity_name: str, email: str):
             raise HTTPException(status_code=400, detail="Student is already signed up")
 
         # Check capacity
-        if activity.max_participants is not None and current_count >= activity.max_participants:
+        if (
+            activity.max_participants is not None
+            and current_count >= activity.max_participants
+        ):
             raise HTTPException(status_code=400, detail="Activity is full")
 
         participant = Participant(email=email, activity_id=activity.id)
@@ -102,7 +108,9 @@ def unregister_from_activity(activity_name: str, email: str):
         )
         participant = session.exec(statement).one_or_none()
         if not participant:
-            raise HTTPException(status_code=400, detail="Student is not signed up for this activity")
+            raise HTTPException(
+                status_code=400, detail="Student is not signed up for this activity"
+            )
 
         session.delete(participant)
         session.commit()

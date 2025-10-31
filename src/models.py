@@ -4,7 +4,9 @@ from sqlalchemy import UniqueConstraint
 
 
 class Participant(SQLModel, table=True):
-    __table_args__ = (UniqueConstraint("email", "activity_id", name="uq_email_activity_id"),)
+    __table_args__ = (
+        UniqueConstraint("email", "activity_id", name="uq_email_activity_id"),
+    )
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(
         max_length=255,

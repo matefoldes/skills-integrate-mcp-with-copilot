@@ -1,4 +1,13 @@
 fastapi
 uvicorn
-
 sqlmodel
+
+# Testing dependencies
+pytest
+pytest-cov
+httpx
+
+# Code quality tools
+black
+ruff
+pre-commit
