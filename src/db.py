@@ -6,11 +6,21 @@ from pathlib import Path
 DB_FILE = Path(__file__).parent.parent / "mergington.db"
 DB_URL = f"sqlite:///{DB_FILE}"
 
-engine = create_engine(DB_URL, echo=False)
+# Lazily-created engine to avoid creating an engine at import time (better testability)
+_engine = None
+
+
+def get_engine():
+    """Create and return a database engine instance (cached)."""
+    global _engine
+    if _engine is None:
+        _engine = create_engine(DB_URL, echo=False)
+    return _engine
 
 
 def init_db():
     """Create database tables and seed initial activities if none exist."""
+    engine = get_engine()
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         activities = session.exec(select(Activity)).all()

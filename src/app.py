@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from sqlmodel import Session, select
 
@@ -17,19 +18,23 @@ from . import db
 from .models import Activity, Participant
 
 
-app = FastAPI(title="Mergington High School API",
-              description="API for viewing and signing up for extracurricular activities")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize DB and seed data if needed on startup
+    db.init_db()
+    yield
+
+
+app = FastAPI(
+    title="Mergington High School API",
+    description="API for viewing and signing up for extracurricular activities",
+    lifespan=lifespan,
+)
 
 # Mount the static files directory
 current_dir = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
           "static")), name="static")
-
-
-@app.on_event("startup")
-def on_startup():
-    # Initialize DB and seed data if needed
-    db.init_db()
 
 
 @app.get("/")
@@ -40,7 +45,7 @@ def root():
 @app.get("/activities")
 def get_activities():
     """Return all activities with participants"""
-    with Session(db.engine) as session:
+    with Session(db.get_engine()) as session:
         statement = select(Activity)
         results = session.exec(statement).all()
         out = {}
@@ -59,14 +64,13 @@ def get_activities():
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
     """Sign up a student for an activity (persisted)"""
-    with Session(db.engine) as session:
+    with Session(db.get_engine()) as session:
         statement = select(Activity).where(Activity.name == activity_name)
         activity = session.exec(statement).one_or_none()
         if not activity:
             raise HTTPException(status_code=404, detail="Activity not found")
 
-        # Refresh participants relationship
-        session.refresh(activity)
+    # participants relationship will be available from the loaded model
         current_count = len(activity.participants) if activity.participants else 0
 
         # Check if already signed up
@@ -86,7 +90,7 @@ def signup_for_activity(activity_name: str, email: str):
 @app.delete("/activities/{activity_name}/unregister")
 def unregister_from_activity(activity_name: str, email: str):
     """Unregister a student from an activity (persisted)"""
-    with Session(db.engine) as session:
+    with Session(db.get_engine()) as session:
         statement = select(Activity).where(Activity.name == activity_name)
         activity = session.exec(statement).one_or_none()
         if not activity:
