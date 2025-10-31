@@ -56,6 +56,13 @@ def session_fixture():
                 max_participants=25,
                 tags="technology,coding,collaboration"
             ),
+            Activity(
+                name="Art Club",
+                description="Express creativity through various art forms",
+                schedule="Thursdays, 3:00 PM - 4:30 PM",
+                max_participants=None,  # No participant limit
+                tags="creative,art,indoor"
+            ),
         ]
         for activity in activities:
             session.add(activity)
@@ -78,11 +85,12 @@ def test_get_all_activities(client: TestClient):
     response = client.get("/activities")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 4
+    assert len(data) == 5
     assert "Chess Club" in data
     assert "Programming Class" in data
     assert "Gym Class" in data
     assert "GitHub Skills" in data
+    assert "Art Club" in data
 
 
 def test_search_by_name(client: TestClient):
@@ -137,9 +145,10 @@ def test_filter_by_max_participants(client: TestClient):
     response = client.get("/activities?max_participants=20")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert len(data) == 3
     assert "Chess Club" in data
     assert "Programming Class" in data
+    assert "Art Club" in data  # No limit, should be included
 
 
 def test_filter_by_single_tag(client: TestClient):
@@ -157,9 +166,10 @@ def test_filter_by_multiple_tags(client: TestClient):
     response = client.get("/activities?tags=outdoor,indoor")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert len(data) == 3
     assert "Chess Club" in data
     assert "Gym Class" in data
+    assert "Art Club" in data
 
 
 def test_combined_filters(client: TestClient):

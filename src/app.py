@@ -73,7 +73,7 @@ def get_activities(
             
             # Max participants filter
             if max_participants is not None:
-                if activity.max_participants is None or activity.max_participants > max_participants:
+                if activity.max_participants is not None and activity.max_participants > max_participants:
                     continue
             
             # Tags filter (check if any requested tag is in activity tags)
