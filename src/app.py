@@ -5,12 +5,13 @@ A super simple FastAPI application that allows students to view and sign up
 for extracurricular activities at Mergington High School.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
 from contextlib import asynccontextmanager
+from typing import Optional, List
 
 from sqlmodel import Session, select
 
@@ -43,19 +44,56 @@ def root():
 
 
 @app.get("/activities")
-def get_activities():
-    """Return all activities with participants"""
+def get_activities(
+    q: Optional[str] = Query(None, description="Search query for name/description"),
+    day: Optional[str] = Query(None, description="Filter by day of the week (e.g., Monday, Tuesday)"),
+    max_participants: Optional[int] = Query(None, description="Filter by maximum participants (activities with this limit or less)"),
+    tags: Optional[str] = Query(None, description="Filter by tags (comma-separated)")
+):
+    """Return activities with optional search and filtering"""
     with Session(db.get_engine()) as session:
         statement = select(Activity)
         results = session.exec(statement).all()
+        
+        # Filter results based on query parameters
+        filtered_results = []
+        for activity in results:
+            # Search filter (case-insensitive search in name and description)
+            if q:
+                query_lower = q.lower()
+                name_match = query_lower in (activity.name or "").lower()
+                desc_match = query_lower in (activity.description or "").lower()
+                if not (name_match or desc_match):
+                    continue
+            
+            # Day filter (check if day appears in schedule)
+            if day:
+                if not activity.schedule or day.lower() not in activity.schedule.lower():
+                    continue
+            
+            # Max participants filter
+            if max_participants is not None:
+                if activity.max_participants is None or activity.max_participants > max_participants:
+                    continue
+            
+            # Tags filter (check if any requested tag is in activity tags)
+            if tags:
+                requested_tags = [t.strip().lower() for t in tags.split(",")]
+                activity_tags = [t.strip().lower() for t in (activity.tags or "").split(",") if t.strip()]
+                if not any(tag in activity_tags for tag in requested_tags):
+                    continue
+            
+            filtered_results.append(activity)
+        
         out = {}
-        for a in results:
+        for a in filtered_results:
             # fetch participants
             participants = [p.email for p in a.participants] if a.participants else []
             out[a.name] = {
                 "description": a.description,
                 "schedule": a.schedule,
                 "max_participants": a.max_participants,
+                "tags": a.tags,
                 "participants": participants,
             }
         return out

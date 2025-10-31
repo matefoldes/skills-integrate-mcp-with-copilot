@@ -33,24 +33,28 @@ def init_db():
                 "description": "Learn strategies and compete in chess tournaments",
                 "schedule": "Fridays, 3:30 PM - 5:00 PM",
                 "max_participants": 12,
+                "tags": "strategy,competition,indoor",
             },
             {
                 "name": "Programming Class",
                 "description": "Learn programming fundamentals and build software projects",
                 "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
                 "max_participants": 20,
+                "tags": "technology,coding,education",
             },
             {
                 "name": "Gym Class",
                 "description": "Physical education and sports activities",
                 "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
                 "max_participants": 30,
+                "tags": "sports,physical,outdoor",
             },
             {
                 "name": "GitHub Skills",
                 "description": "Learn practical coding and collaboration skills with GitHub",
                 "schedule": "Wednesdays, 4:00 PM - 5:30 PM",
                 "max_participants": 25,
+                "tags": "technology,coding,collaboration",
             },
         ]
 
@@ -60,6 +64,7 @@ def init_db():
                 description=a.get("description"),
                 schedule=a.get("schedule"),
                 max_participants=a.get("max_participants"),
+                tags=a.get("tags"),
             )
             session.add(activity)
 
