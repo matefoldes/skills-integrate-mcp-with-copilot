@@ -46,6 +46,12 @@ def init_db():
                 "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
                 "max_participants": 30,
             },
+            {
+                "name": "GitHub Skills",
+                "description": "Learn practical coding and collaboration skills with GitHub",
+                "schedule": "Wednesdays, 4:00 PM - 5:30 PM",
+                "max_participants": 25,
+            },
         ]
 
         for a in sample:
