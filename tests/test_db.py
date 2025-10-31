@@ -1,6 +1,5 @@
 """Tests for database initialization and migrations."""
 
-
 from sqlmodel import Session, select
 
 from src.db import init_db

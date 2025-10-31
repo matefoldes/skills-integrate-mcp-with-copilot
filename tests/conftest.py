@@ -1,6 +1,5 @@
 """Test fixtures and configuration for the test suite."""
 
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
