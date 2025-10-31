@@ -1,5 +1,6 @@
 """Tests for database initialization and migrations."""
 
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from src.db import init_db
@@ -74,7 +75,7 @@ def test_activity_unique_name_constraint(test_engine):
 
         try:
             session.commit()
-            assert False, "Expected integrity error for duplicate name"
-        except Exception:
+            assert False, "Expected IntegrityError for duplicate name"
+        except IntegrityError:
             # Expected - unique constraint violation
             session.rollback()
