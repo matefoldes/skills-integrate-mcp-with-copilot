@@ -25,6 +25,7 @@
 *.log
 *.sql
 *.sqlite
+*.db
 
 # OS generated files #
 ######################
@@ -38,6 +39,17 @@ Thumbs.db
 
 # Python files
 __pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.egg-info/
+dist/
+build/
 
 # Env files
 .env
