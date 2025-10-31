@@ -20,4 +20,5 @@ class Activity(SQLModel, table=True):
     description: Optional[str] = None
     schedule: Optional[str] = None
     max_participants: Optional[int] = None
+    tags: Optional[str] = None  # Comma-separated tags
     participants: List[Participant] = Relationship(back_populates="activity")
